@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+			<meta charset="utf-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<title></title>
+			<link rel="stylesheet" href="">
+	</head>
+	<style>
+		body{
+			padding-left:10px;
+			font-size: 14px;
+			font-family: monospace;
+			color: #f69e6f;
+			background-color: #1c1c1c;
+		}
+		p{
+			padding-left: 5%;
+		}
+		p:first-of-type{
+			padding-top: 5%;
+		}
+		.grey{
+			color: #aaa;
+		}
+	</style>
+	<body id="body">
+		<!-- <p>
+		<div>
+			<pre>
+ _   _ _      _               _   ______ _            _    _            _
+| | | (_)    | |             | |  | ___ \ |          | |  (_)          | |
+| | | |_ _ __| |_ _   _  __ _| |  | |_/ / | __ _  ___| | ___  __ _  ___| | __
+| | | | | '__| __| | | |/ _` | |  | ___ \ |/ _` |/ __| |/ / |/ _` |/ __| |/ /
+\ \_/ / | |  | |_| |_| | (_| | |  | |_/ / | (_| | (__|   <| | (_| | (__|   <
+ \___/|_|_|   \__|\__,_|\__,_|_|  \____/|_|\__,_|\___|_|\_\ |\__,_|\___|_|\_\
+                                                         _/ |
+                                                        |__/
+			</pre>
+			</div>
+		</p> -->
+      <script type="text/javascript">
+				let deck = [
+				[2,3,4,5,6,7,8,9,10,10,10,10,11],
+				[2,3,4,5,6,7,8,9,10,10,10,10,11],
+				[2,3,4,5,6,7,8,9,10,10,10,10,11],
+				[2,3,4,5,6,7,8,9,10,10,10,10,11]
+				];
+
+				function shuffleDeck(deck){
+					//Accepts a deck of 4 suits as a 2d array
+					let tempDeck = [];
+					let shuffledDeck = [];
+
+					for (i=0; i<deck.length; i++){
+						for(j=0; j<deck[0].length; j++){
+							tempDeck.push(deck[i][j]);
+						}
+					}
+					// console.log(tempDeck);
+					// console.log(tempDeck.reduce((a,b) => a + b, 0));
+					// let startLength=tempDeck.length;
+
+					for(i=tempDeck.length; i>0; i--){
+						let currentCard=Math.floor(tempDeck.length*Math.random());
+						shuffledDeck.push(tempDeck[currentCard]);
+						tempDeck.splice(currentCard, 1);
+						// console.log(currentCard);
+					}
+					let shuffledDeckMirror=[];
+					for (item of shuffledDeck){
+						shuffledDeckMirror.push(item);
+					}
+					// console.log(shuffledDeckMirror);
+					// console.log(shuffledDeck.reduce((a,b) => a + b, 0));
+					return shuffledDeck;
+				}
+				// generate a random number
+
+
+				let shuffledDeck = shuffleDeck(deck);
+
+				let sam={};
+				sam.hand=[];
+				sam.total=0;
+				sam.name="Sam";
+				let dealer={};
+				dealer.hand=[];
+				dealer.name="Dealer";
+				dealer.total=0;
+
+				function dealTopCard(deck,player){
+					let lastCard=(deck.length-1);
+					player.hand.push(deck[lastCard]);
+					player.total=player.hand.reduce((a,b) => a + b, 0);
+					createLog(player.name+" draws a card.");
+					createLog(player.name+ "'s hand: "+player.hand,true);
+					deck.splice(lastCard, 1);
+					shuffledDeck=deck;
+				}
+
+				dealTopCard(shuffledDeck,sam);
+				dealTopCard(shuffledDeck,dealer);
+				dealTopCard(shuffledDeck,sam);
+				dealTopCard(shuffledDeck,dealer);
+
+				// console.log("Sam's hand:"+sam.hand);
+				// console.log("Dealer's hand:"+dealer.hand);
+				// console.log(shuffledDeck);
+
+				//Replace hand with TOTAL of hand plus list of cards seperately
+
+				if (sam.total===21&&dealer.total===21){
+					createLog("Both players drew 21. How exciting.")
+				}
+				else if (sam.total===21){
+					// console.log("Sam's Hand: "+sam.total)
+					createLog("Sam wins with his first hand. What a thrill.")
+				}
+				else if (dealer.total===21){
+					createLog("The dealer wins on his first hand. Better luck next time.")
+				}
+				else{
+					drawTillDone(shuffledDeck,sam);
+				}
+
+
+				function drawTillDone(deck, player){
+					// dealTopCard(deck,player);
+					if (player.total>21){
+						if (player.name==="Sam"){
+							createLog(player.name+ " is bust! The dealer wins, with a total of "+dealer.total+".");
+						}
+						else {
+							createLog(player.name+ " is bust!");
+						}
+						if (player.name==="Dealer"&&sam.total<22){
+							createLog("Sam wins with a hand of: "+sam.hand+", totalling "+sam.total+".");
+						}
+					}
+					else if (player.total===21){
+						createLog(player.name + " wins! What an absolute boy.");
+						createLog("Winning hand: "+player.hand);
+					}
+					else if (player.total<21&&player.total>16){
+						if (player.name==="Sam"){
+							createLog(player.name + " scores "+player.total+" and leaves it there"+".");
+							drawTillDone(shuffledDeck,dealer);
+						}
+						if (player.name==="Dealer"){
+							if (player.total>sam.total){
+								createLog("The dealer wins with a total of "+dealer.total+".");
+							}
+							else{
+								// console.log(player.name + " scores "+player.total+".");
+								dealTopCard(deck,player);
+								drawTillDone(deck,player);
+							}
+						}
+					}
+					else if (player.total<17){
+						dealTopCard(deck,player);
+						drawTillDone(deck,player);
+					}
+				}
+
+				function createLog(text,grey){
+					let body = document.getElementById('body')
+					let elem = document.createElement("p");
+					elem.appendChild(document.createTextNode(text));
+					if(grey){
+						elem.setAttribute("class","grey");
+					}
+					body.appendChild(elem);
+				}
+
+				//create a new array that is a single array of all the suits
+				//create a version of that array that is fully shuffled
+
+      </script>
+	</body>
+</html>
